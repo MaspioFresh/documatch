@@ -1,0 +1,83 @@
+# =============================================================================
+# DocuMatch — .gitignore root del progetto
+# =============================================================================
+
+# --- Python / Backend ---
+backend/venv/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/app/**/__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# --- Database locale di sviluppo (NON committare dati reali) ---
+backend/documatch.db
+backend/cloud.db
+
+# --- Variabili d'ambiente (MAI committare chiavi segrete!) ---
+.env
+backend/.env
+frontend/.env
+Documatch/.env
+*.env.local
+
+# --- Artefatti build Frontend ---
+Documatch/node_modules/
+Documatch/dist/
+Documatch/dist-ssr/
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+# --- Log ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# --- Editor ---
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# --- File Temporanei e Varie ---
+*.docx
+Consigli_Esame_Orale.md
+Progetto SDCC Assistance And Planning.md
+Relazione_Tecnica.md
+add_no_markdown.py
+clean_latex.py
+traccia.md
+
+# --- Dati di Test e Mock ---
+mock_documents/
+test_data/
+Materiale esercitazioni/
+
+# --- Esportazioni Vecchie ---
+export chat/
+export14-07-2026 (1)/
+export14-07-2026 (1).zip
+export14-07-2026 (2)/
+export14-07-2026 (2).zip
+
+# --- LaTeX Temporanei (Relazione e Mock) ---
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+texput.log
+
+# --- Email Mockup Sviluppo ---
+backend/mock_emails/*
+!backend/mock_emails/.gitkeep
