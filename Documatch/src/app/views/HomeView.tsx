@@ -248,7 +248,7 @@ export function HomeView({ docs, ufficiPreset, firmatariPreset, frazioniPreset, 
   const hasActiveFilters = query || filterTipo.length > 0 || filterAnno.length > 0 || filterUfficio.length > 0 || filterFirmatario.length > 0 || filterFrazione.length > 0;
 
   return (
-    <main className="w-full min-w-0 max-w-7xl mx-auto px-4 py-8">
+    <main className="w-full min-w-0 max-w-[1400px] mx-auto px-4 py-8">
       <div className="sticky top-[57px] z-40 bg-background pb-4 -mx-4 px-4 pt-1">
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm">
           {/* Tabs modalità */}

@@ -390,7 +390,7 @@ def analyze_document_via_ocr(
         # GPT ha risposto con successo! Usiamo i suoi dati
         nome = metadati_json.get("nome") or f"Rilevato da {file.filename.split('.')[0].replace('_', ' ')}"
         descrizione = metadati_json.get("descrizione") or (testo_estratto if len(testo_estratto) <= 1500 else testo_estratto[:1500] + "...")
-        tipologia = metadati_json.get("tipologia") or ("Delibera" if "delibera" in file.filename.lower() else "Atto")
+        tipologia = metadati_json.get("tipologia") or ("Delibera" if "delibera" in file.filename.lower() else "Da Classificare")
         data = metadati_json.get("data") or "2026-06-01"
         data_scadenza = metadati_json.get("data_scadenza")
         uffici = metadati_json.get("uffici") or []
@@ -402,7 +402,7 @@ def analyze_document_via_ocr(
         uffici, firmatari = elabora_testo_nlp(testo_estratto)
         nome = f"Rilevato da {file.filename.split('.')[0].replace('_', ' ')}"
         descrizione = testo_estratto if len(testo_estratto) <= 1500 else testo_estratto[:1500] + "..."
-        tipologia = "Delibera" if "delibera" in file.filename.lower() else "Atto"
+        tipologia = "Delibera" if "delibera" in file.filename.lower() else "Da Classificare"
         data = "2026-06-01"
         data_scadenza = None
         frazioni = []
@@ -828,7 +828,7 @@ def bulk_resolve_entities(
             if doc.tipologia:
                 # Deleted
                 if doc.tipologia in payload.deleted.get("tipologie", []):
-                    doc.tipologia = "Atto" # Fallback generico
+                    doc.tipologia = "Da Classificare" # Fallback generico
                     changed = True
                 else:
                     # Resolved

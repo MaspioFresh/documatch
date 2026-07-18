@@ -127,7 +127,7 @@ _seed_entita(Office, "nome", [
 _seed_entita(Typology, "nome", [
     "Delibera di Giunta", "Delibera di Consiglio", "Determinazione Dirigenziale",
     "Ordinanza Sindacale", "Autorizzazione Paesaggistica", "Bando di Gara",
-    "Regolamento Comunale"
+    "Regolamento Comunale", "Da Classificare"
 ], "Tipologie")
 _seed_entita(Frazione, "nome", [
     "Capoluogo (Centro)", "Frazione Marina", "Frazione Collinare", "Zona Industriale"
@@ -135,6 +135,21 @@ _seed_entita(Frazione, "nome", [
 _seed_entita(Firmatario, "nome", [
     "Sindaco Mario Gentile", "Segretario Comunale Dott. Mancini", "Resp. UTC Ing. Rossi", "Resp. Edilizia Arch. Ferrara"
 ], "Firmatari")
+
+# Assicuriamoci che la tipologia di fallback esista sempre, anche se il DB era già popolato
+def _ensure_da_classificare():
+    db: Session = SessionLocal()
+    try:
+        if not db.query(Typology).filter(Typology.nome == "Da Classificare").first():
+            db.add(Typology(nome="Da Classificare"))
+            db.commit()
+            print("Seed: Aggiunta tipologia di fallback 'Da Classificare'.")
+    except Exception as e:
+        pass
+    finally:
+        db.close()
+
+_ensure_da_classificare()
 
 # ---------------------------------------------------------------------------
 # 4. ISTANZA FASTAPI

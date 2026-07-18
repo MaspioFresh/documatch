@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Shield, LogOut, Upload, Plus, X, Trash2, Bell, UploadCloud, Edit2, Eye, EyeOff } from "lucide-react";
+import { Shield, LogOut, Upload, Plus, X, Trash2, Bell, UploadCloud, Edit2, Eye, EyeOff, Loader2 } from "lucide-react";
 import type { Doc } from "../types";
 import { authService } from "../services/authService";
 import { documentiService } from "../services/documentiService";
@@ -56,6 +56,7 @@ export function AdminView({ docs, setDocs, adminUnlocked, setAdminUnlocked, setS
   const [bulkMissingEntities, setBulkMissingEntities] = useState<MissingEntity[]>([]);
   const importRef = useRef<HTMLInputElement>(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   
   const isSupremeAdmin = authService.getLoggedUsername() === "admin";
 
@@ -135,6 +136,7 @@ export function AdminView({ docs, setDocs, adminUnlocked, setAdminUnlocked, setS
   }
 
   async function processImportFile(file: File) {
+    setIsImporting(true);
     try {
       const res = await documentiService.importBulk(file);
       await showAlert("Importazione Completata", res.messaggio);
@@ -154,6 +156,8 @@ export function AdminView({ docs, setDocs, adminUnlocked, setAdminUnlocked, setS
       loadDocs();
     } catch (err: any) {
       await showAlert("Errore", "Errore importazione: " + err.message);
+    } finally {
+      setIsImporting(false);
     }
   }
 
@@ -165,7 +169,7 @@ export function AdminView({ docs, setDocs, adminUnlocked, setAdminUnlocked, setS
     
     try {
       await documentiService.bulkResolveEntities(resolved, deleted);
-      await showAlert("Fatto", "I documenti sono stati aggiornati con i nuovi nomi.");
+      await showAlert("Salvataggio Completato", "I documenti sono stati aggiornati con i nuovi nomi.");
       loadDocs();
     } catch (e: any) {
       await showAlert("Errore", "Impossibile aggiornare i documenti importati: " + e.message);
@@ -313,15 +317,20 @@ export function AdminView({ docs, setDocs, adminUnlocked, setAdminUnlocked, setS
   }
 
   return (
-    <main className="w-full min-w-0 max-w-6xl mx-auto px-4 py-8">
+    <main className="w-full min-w-0 max-w-[1400px] mx-auto px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div className="flex flex-wrap items-center gap-4">
-          <h1 className="text-2xl font-bold tracking-wide" style={{ fontFamily: "Barlow Condensed, sans-serif" }}>Area Amministrativa</h1>
+        <h1 className="text-2xl font-bold tracking-wide order-1" style={{ fontFamily: "Barlow Condensed, sans-serif" }}>Area Amministrativa</h1>
+        
+        <div className="w-full sm:w-auto order-3 sm:order-2 flex-grow">
           <button onClick={handleTriggerScadenze} className="text-[10px] text-muted-foreground hover:text-primary transition-colors border border-border/50 bg-secondary/30 rounded px-2 py-0.5" title="Forza invio email per i documenti in scadenza">
             [Demo: Trigger Email Scadenze]
           </button>
         </div>
-        <button onClick={() => { authService.logout(); setAdminUnlocked(false); }} className="p-2 text-muted-foreground hover:text-foreground transition-colors" title="Esci"><LogOut className="w-4 h-4" /></button>
+
+        <button onClick={() => { authService.logout(); setAdminUnlocked(false); }} className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent hover:border-border rounded-lg transition-all shrink-0 order-2 sm:order-3" title="Esci">
+          <LogOut className="w-4 h-4" />
+          <span>Log out</span>
+        </button>
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
@@ -339,25 +348,33 @@ export function AdminView({ docs, setDocs, adminUnlocked, setAdminUnlocked, setS
         </div>
         
         <div 
-          className="bg-card border border-border hover:border-primary/50 transition-colors rounded-xl p-4 shadow-sm cursor-pointer group"
+          className={`bg-card border border-border transition-colors rounded-xl p-4 shadow-sm group ${isImporting ? 'opacity-70 cursor-wait' : 'cursor-pointer hover:border-primary/50'}`}
           onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDropZip}
+          onDrop={(e) => {
+            if (isImporting) return;
+            handleDropZip(e);
+          }}
           onClick={(e) => {
+            if (isImporting) return;
             if (e.target !== importRef.current) {
                importRef.current?.click();
             }
           }}
         >
           <div className="border-2 border-dashed border-border group-hover:border-primary/40 transition-colors rounded-lg flex flex-col items-center justify-center text-center gap-4 h-full p-6">
-            <div className="w-16 h-16 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center">
-              <Upload className="w-8 h-8" />
+            <div className={`w-16 h-16 ${isImporting ? 'bg-primary/20 text-primary' : 'bg-secondary text-secondary-foreground'} rounded-full flex items-center justify-center`}>
+              {isImporting ? <Loader2 className="w-8 h-8 animate-spin" /> : <Upload className="w-8 h-8" />}
             </div>
             <div className="flex flex-col items-center text-center">
-              <h2 className="text-lg font-bold mb-1">Importazione Massiva (ZIP)</h2>
-              <p className="text-sm text-muted-foreground mb-2">Trascina qui il tuo archivio <b>.zip</b> oppure clicca per selezionarlo.</p>
-              <p className="text-xs text-muted-foreground text-left max-w-xs mx-auto bg-muted/30 p-2 rounded border border-border">
-                <b>Istruzioni:</b> Inserisci nello ZIP un singolo file <code>dati.csv</code> (o <code>.json</code>) e <b>tutte le relative immagini</b>. Le immagini sono obbligatorie. File non supportati nello ZIP verranno ignorati.
-              </p>
+              <h2 className="text-lg font-bold mb-1">{isImporting ? "Importazione in corso..." : "Importazione Massiva (ZIP)"}</h2>
+              {!isImporting && (
+                <>
+                  <p className="text-sm text-muted-foreground mb-2">Trascina qui il tuo archivio <b>.zip</b> oppure clicca per selezionarlo.</p>
+                  <p className="text-xs text-muted-foreground text-left max-w-xs mx-auto bg-muted/30 p-2 rounded border border-border">
+                    <b>Istruzioni:</b> Inserisci nello ZIP un singolo file <code>dati.csv</code> (o <code>.json</code>) e <b>tutte le relative immagini</b>. Le immagini sono obbligatorie. File non supportati nello ZIP verranno ignorati.
+                  </p>
+                </>
+              )}
             </div>
             <input ref={importRef} type="file" accept=".zip" className="hidden" onChange={handleImport} />
           </div>

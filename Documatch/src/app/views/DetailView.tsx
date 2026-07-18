@@ -46,7 +46,7 @@ export function DetailView({ doc, allDocs, onBack, onSelectDoc, adminUnlocked, o
   }, [doc.id]);
 
   return (
-    <main className="w-full min-w-0 max-w-5xl mx-auto px-4 py-8">
+    <main className="w-full min-w-0 max-w-[1400px] mx-auto px-4 py-8">
       {chatOpen && <ChatModal doc={doc} onClose={() => setChatOpen(false)} />}
 
       <div className="flex flex-wrap sm:items-center justify-between gap-4 mb-6">
