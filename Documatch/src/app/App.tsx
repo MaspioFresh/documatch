@@ -127,7 +127,7 @@ export default function App() {
       )}
 
       <header className="bg-primary text-primary-foreground sticky top-0 z-50 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:py-3 flex items-center justify-between">
+        <div className="max-w-[1400px] mx-auto px-4 py-4 sm:py-3 flex items-center justify-between">
           <button onClick={() => setView("home")} className="flex items-center gap-3">
             <div className="w-10 h-10 sm:w-9 sm:h-9 bg-white rounded-lg flex items-center justify-center p-1 shrink-0">
               <img src={logoDocuMatch} alt="DocuMatch" className="w-full h-full object-contain" />
