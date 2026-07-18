@@ -14,6 +14,7 @@ import json
 from typing import List, Optional, Callable
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.core.database import get_db
 from app.models.document import Document
 from app.core.security import get_current_admin
@@ -138,9 +139,13 @@ def crea_router_entita(
         nome = payload.nome.strip()
         if not nome:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Il nome non può essere vuoto.")
-        # Verifichiamo che non esista già un'entità con lo stesso nome (unique constraint)
-        if db.query(model).filter(model.nome == nome).first():
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, f"'{nome}' è già presente nel database.")
+            
+        # Se l'entità esiste già (anche con maiuscole/minuscole diverse), la restituiamo direttamente 
+        # senza creare duplicati o lanciare errori.
+        esistente = db.query(model).filter(func.lower(model.nome) == func.lower(nome)).first()
+        if esistente:
+            return esistente
+            
         obj = model(nome=nome)
         db.add(obj)
         db.commit()

@@ -47,19 +47,23 @@ export function NewEntityDialog({ entities, onComplete, onCancel }: NewEntityDia
   };
 
   const handleNext = async (action: "add" | "ignore") => {
-    const finalName = currentName.trim() || currentEntity.originalName;
+    const userName = currentName.trim() || currentEntity.originalName;
+    let resolvedName = userName;
     
     if (action === "add") {
       setIsSaving(true);
       try {
-        if (currentEntity.type === "tipologie") await entitaService.addTipologia(finalName);
-        if (currentEntity.type === "uffici") await entitaService.addUfficio(finalName);
-        if (currentEntity.type === "firmatari") await entitaService.addFirmatario(finalName);
-        if (currentEntity.type === "frazioni") await entitaService.addFrazione(finalName);
+        let savedEntity: any;
+        if (currentEntity.type === "tipologie") savedEntity = await entitaService.addTipologia(userName);
+        if (currentEntity.type === "uffici") savedEntity = await entitaService.addUfficio(userName);
+        if (currentEntity.type === "firmatari") savedEntity = await entitaService.addFirmatario(userName);
+        if (currentEntity.type === "frazioni") savedEntity = await entitaService.addFrazione(userName);
         
+        resolvedName = savedEntity?.nome || userName;
+
         setResolvedEntities(prev => ({
           ...prev,
-          [currentEntity.type]: [...prev[currentEntity.type], { original: currentEntity.originalName, final: finalName }]
+          [currentEntity.type]: [...prev[currentEntity.type], { original: currentEntity.originalName, final: resolvedName }]
         }));
       } catch (e: any) {
         alert("Errore durante il salvataggio dell'entità: " + e.message);
@@ -81,7 +85,7 @@ export function NewEntityDialog({ entities, onComplete, onCancel }: NewEntityDia
       // Completato
       onComplete(
         action === "add" 
-          ? { ...resolvedEntities, [currentEntity.type]: [...resolvedEntities[currentEntity.type], { original: currentEntity.originalName, final: finalName }] } 
+          ? { ...resolvedEntities, [currentEntity.type]: [...resolvedEntities[currentEntity.type], { original: currentEntity.originalName, final: resolvedName }] } 
           : resolvedEntities,
         action === "ignore"
           ? { ...deletedEntities, [currentEntity.type]: [...deletedEntities[currentEntity.type], currentEntity.originalName] }
